@@ -17,7 +17,7 @@ export default function Verify() {
 
     try {
       // Call the API to submit the claim and get feedback
-      const response = await api.submitClaim("6794e670fa7b73ad6627cb81", claim); // Pass user id and claim data
+      const response = await api.submitClaim("679505a4088b0408d646b0dc", claim); // Pass user id and claim data
 
       // Update feedback with the response from the API
       setFeedback(response.feedback || "Unable to verify claim at the moment.");

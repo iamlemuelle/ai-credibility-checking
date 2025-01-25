@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       {
         role: "system",
         content:
-          "You are an artificial intelligence assistant tasked with fact-checking claims. Respond only with a percentage (between 0 and 100) indicating the truthfulness of the claim. If the claim is false, return 0. If the claim is true, return 100.",
+          "You are an artificial intelligence assistant tasked with fact-checking claims. Also, you need to provide a percentage of how much the claim is true. The percentage should be between 0 and 100. If the claim is false, you should return a percentage of 0. Calculate the percentage based on how much the information is credible. Also, return not more than one percentage",
       },
       {
         role: "user",
@@ -51,10 +51,13 @@ export async function POST(req: Request) {
       messages: messages,
     });
 
-    const aiFeedback = aiResponse.choices[0].message.content.trim(); // Clean the response
+    const aiFeedback = aiResponse.choices[0].message.content; // Extract the feedback from the response
 
-    // Parse the percentage from the AI feedback (ensure it is a valid number)
-    const claimAccuracy = parseInt(aiFeedback, 10);
+    const percentageMatch = aiFeedback.match(/\*\*(\d+(\.\d+)?)\s?%/);
+    const claimAccuracy = percentageMatch
+      ? parseFloat(percentageMatch[1])
+      : null;
+
     if (isNaN(claimAccuracy)) {
       return NextResponse.json(
         { error: "Failed to extract valid truth percentage from AI response" },
@@ -62,12 +65,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Save the claim accuracy
     user.claims[user.claims.length - 1].claimAccuracy = claimAccuracy;
 
     // Update claim status based on the accuracy
-    user.claims[user.claims.length - 1].status =
-      claimAccuracy < 60 ? "unverified" : "verified";
+    const userVerificationStatus = (user.claims[user.claims.length - 1].status =
+      claimAccuracy < 60 ? "unverified" : "verified");
+
+    if (userVerificationStatus === "verified") {
+      user.verifiedClaims += 1;
+    }
 
     await user.save();
 
@@ -76,21 +82,16 @@ export async function POST(req: Request) {
       (acc, claim) => acc + claim.claimAccuracy,
       0
     );
-    const averageAccuracy = totalAccuracy / user.claims.length;
+    const averageAccuracy = totalAccuracy / user.totalClaims;
 
     // Update the credibility score (you can adjust the weighting if needed)
     user.credibilityScore = averageAccuracy;
 
     await user.save();
 
-    // Return response with the updated claim accuracy and new credibility score
+    // Return response with feedback from OpenAI
     return NextResponse.json(
-      {
-        message: "Claim submitted successfully",
-        feedback: aiFeedback,
-        claimAccuracy,
-        credibilityScore: user.credibilityScore,
-      },
+      { message: "Claim submitted successfully", feedback: aiFeedback },
       { status: 201 }
     );
   } catch (error) {
