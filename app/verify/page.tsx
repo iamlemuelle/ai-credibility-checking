@@ -16,7 +16,7 @@ export default function Verify() {
     setFeedback(null); // Reset feedback before submission
 
     try {
-      // Call the API to verify the claim
+      // Call the API to submit the claim and get feedback
       const response = await api.submitClaim("6794e670fa7b73ad6627cb81", claim); // Pass user id and claim data
 
       // Update feedback with the response from the API
