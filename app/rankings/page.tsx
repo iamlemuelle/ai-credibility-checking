@@ -33,6 +33,12 @@ export default function Rankings() {
     fetchUsers();
   }, []);
 
+  const getCredibilityColor = (score: number) => {
+    if (score < 30) return "text-red-500";
+    if (score < 60) return "text-yellow-500";
+    return "text-green-500";
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#343541] p-4">
@@ -77,7 +83,11 @@ export default function Rankings() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[#10a37f] font-bold text-xl">
+                    <div
+                      className={`font-bold text-xl ${getCredibilityColor(
+                        user.credibilityScore
+                      )}`}
+                    >
                       {user.credibilityScore}%
                     </div>
                     <div className="text-gray-400 text-sm">

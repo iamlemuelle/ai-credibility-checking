@@ -20,6 +20,12 @@ interface User {
   claims: Claim[];
 }
 
+const getCredibilityColor = (score: number) => {
+  if (score < 30) return "text-red-500";
+  if (score < 60) return "text-yellow-500";
+  return "text-green-500";
+};
+
 export default function Profile() {
   const params = useParams();
   const [user, setUser] = useState<User | null>(null);
@@ -85,7 +91,11 @@ export default function Profile() {
 
           <div className="grid grid-cols-3 gap-4 mt-6">
             <div className="bg-[#40414f] p-4 rounded-lg">
-              <div className="text-2xl font-bold text-[#10a37f]">
+              <div
+                className={`font-bold text-xl ${getCredibilityColor(
+                  user.credibilityScore
+                )}`}
+              >
                 {user.credibilityScore}%
               </div>
               <div className="text-gray-400">Credibility Score</div>
