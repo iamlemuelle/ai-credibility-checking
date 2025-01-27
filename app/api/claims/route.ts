@@ -10,6 +10,12 @@ const openai = new OpenAI({
   baseURL: "https://api.perplexity.ai",
 });
 
+type ChatCompletionMessageParam = {
+  role: "system" | "user";
+  content: string;
+  name?: string; // Optional "name" property
+};
+
 export async function POST(req: Request) {
   try {
     const { userId, claim } = await req.json();
@@ -33,7 +39,7 @@ export async function POST(req: Request) {
     await user.save();
 
     // Call OpenAI to verify the claim
-    const messages = [
+    const messages: ChatCompletionMessageParam[] = [
       {
         role: "system",
         content:

@@ -1,7 +1,0 @@
-{
-  "/rankings/page": "app/rankings/page.js",
-  "/profile/[id]/page": "app/profile/[id]/page.js",
-  "/verify/page": "app/verify/page.js",
-  "/api/users/[id]/route": "app/api/users/[id]/route.js",
-  "/api/users/route": "app/api/users/route.js"
-}
